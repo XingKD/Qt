@@ -13,7 +13,7 @@ Window {
     width: 640
     height: 480
     title: qsTr("Hello World")
-    flags: Qt.FramelessWindowHint
+    flags: Qt.FramelessWindowHint | Qt.Window
     color: "transparent"
     Item {
         width: parent.width - windowRadius * 2
@@ -23,7 +23,11 @@ Window {
             id: backgroundRect
             anchors.fill: parent
             radius: windowRadius
-            color: "#DDDDDD"
+//            color: "#2B3133"
+            gradient: Gradient {
+                GradientStop {position: 0; color: "slategray"}
+                GradientStop {position: 1; color: "slategray"}
+            }
         }
         DropShadow {
             anchors.fill: backgroundRect

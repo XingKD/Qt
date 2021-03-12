@@ -3,156 +3,145 @@ import QtQuick 2.14
 Item {
     id: myBusyIndicator
 
-    width: 66
+    property int lineWidth: 6
+
+    property color strokeColor: "silver"
+
+    property real startAngle
+    property real endAngle
+    property real rotateAngle: 0
+
+    property bool isAutoChangeColor: false
+
+    property string busyText
+
+    property color textColor: strokeColor
+
+    onStartAngleChanged: {
+        canvas.requestPaint();
+    }
+    onEndAngleChanged: {
+        canvas.requestPaint();
+    }
+    onRotateAngleChanged: {
+        canvas.requestPaint();
+    }
+    onStrokeColorChanged: {
+        canvas.requestPaint();
+    }
+
+    width: 60
     height: 80
     anchors.centerIn: parent
-    Item {
-        width: parent.width
-        height: width
-        Canvas {
-            id: canvas
-            property real spinnerWidth: 8
 
-            property bool autoChangeColor: true
-
-            property color color: "ForestGreen"
-
-            anchors.fill: parent
-
-            renderStrategy: Canvas.Threaded
-            antialiasing: true
-            onPaint: {
-                var ctx = getContext("2d");
-                ctx.reset();
-                ctx.clearRect(0, 0, width, height);
-                ctx.strokeStyle = color
-                ctx.lineWidth = spinnerWidth
-                ctx.lineCap = "round";
-
-                ctx.translate(width / 2, height / 2);
-                ctx.rotate(internal.rotate);
-
-                ctx.arc(0, 0, Math.min(width, height) / 2 - ctx.lineWidth,
-                        internal.arcStartPoint,
-                        internal.arcEndPoint,
-                        false);
-
-                ctx.stroke();
-            }
-
-            opacity:  visible ? 1.0 : 0
-
-            Behavior on opacity {
-                PropertyAnimation {
-                    duration: 800
-                }
-            }
-
-            Connections {
-                target: canvas
-                function onColorChanged(){canvas.requestPaint()}
-                function onSpinnerWidthChanged(){canvas.requestPaint()}
-            }
-
-            QtObject {
-                id: internal
-
-                property real arcEndPoint: 0
-                onArcEndPointChanged: canvas.requestPaint();
-
-                property real arcStartPoint: 0
-                onArcStartPointChanged: canvas.requestPaint();
-
-                property real rotate: 0
-                onRotateChanged: canvas.requestPaint();
-
-                property real longDash: 3 / 2 * Math.PI
-                property real shortDash: 19 / 10 * Math.PI
-            }
-
+    // 自动变色动画
+    SequentialAnimation {
+        running: myBusyIndicator.enabled && isAutoChangeColor
+        loops: Animation.Infinite
+        ColorAnimation {
+            target: myBusyIndicator
+            property: "strokeColor"
+            from: "DarkRed"
+            to: "Green"
+            duration: 3000
+        }
+        ColorAnimation {
+            target: myBusyIndicator
+            property: "strokeColor"
+            from: "Green"
+            to: "Blue"
+            duration: 3000
+        }
+        ColorAnimation {
+            target: myBusyIndicator
+            property: "strokeColor"
+            from: "Blue"
+            to: "DarkRed"
+            duration: 3000
+        }
+    }
+    // 弧长度切换动画
+    SequentialAnimation{
+        running: myBusyIndicator.enabled
+        loops: Animation.Infinite
+        ParallelAnimation {
             NumberAnimation {
-                target: internal
-                properties: "rotate"
+                target: myBusyIndicator
+                property: "startAngle"
                 from: 0
-                to: 2 * Math.PI
-                loops: Animation.Infinite
-                running: canvas.visible
-                easing.type: Easing.Linear
-                duration: 3000
+                to: 3 / 2 * Math.PI
+                duration: 2000
+                easing.type: Easing.InOutCubic
             }
+            NumberAnimation {
+                target: myBusyIndicator
+                property: "endAngle"
+                from: 3 / 2 * Math.PI
+                to: 2 * Math.PI
+                duration: 2000
+                easing.type: Easing.InOutCubic
+            }
+        }
+        ParallelAnimation {
+            NumberAnimation {
+                target: myBusyIndicator
+                property: "startAngle"
+                from: 3 / 2 * Math.PI
+                to: 2 * Math.PI
+                duration: 1000
+                easing.type: Easing.InOutCubic
+            }
+            NumberAnimation {
+                target: myBusyIndicator
+                property: "endAngle"
+                from: 0
+                to: 3 / 2 * Math.PI
+                duration: 1000
+                easing.type: Easing.InOutCubic
+            }
+        }
+    }
+    // 整体旋转动画
+    NumberAnimation {
+        target: myBusyIndicator
+        running: myBusyIndicator.enabled
+        loops: Animation.Infinite
+        property: "rotateAngle"
+        from: 0
+        to: 2 * Math.PI
+        duration: 2500
+    }
 
-            SequentialAnimation {
-                running: canvas.visible
-                loops: Animation.Infinite
-
-                ParallelAnimation {
-                    NumberAnimation {
-                        target: internal
-                        properties: "arcEndPoint"
-                        from: 0
-                        to: internal.longDash
-                        easing.type: Easing.InOutCubic
-                        duration: 800
-                    }
-
-                    NumberAnimation {
-                        target: internal
-                        properties: "arcStartPoint"
-                        from: internal.shortDash
-                        to: 2 * Math.PI - 0.001
-                        easing.type: Easing.InOutCubic
-                        duration: 800
-                    }
-                }
-
-                ParallelAnimation {
-                    NumberAnimation {
-                        target: internal
-                        properties: "arcEndPoint"
-                        from: internal.longDash
-                        to: 2 * Math.PI - 0.001
-                        easing.type: Easing.InOutCubic
-                        duration: 800
-                    }
-
-                    NumberAnimation {
-                        target: internal
-                        properties: "arcStartPoint"
-                        from: 0
-                        to: internal.shortDash
-                        easing.type: Easing.InOutCubic
-                        duration: 800
-                    }
+    Column {
+        anchors.fill: parent
+        Item {
+            width: parent.width
+            height: parent.height * 2 / 3
+            Canvas {
+                id: canvas
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.reset();
+                    ctx.strokeStyle = strokeColor;
+                    ctx.lineWidth = lineWidth;
+                    ctx.lineCap = "round";
+                    ctx.translate(width/2, height/2);
+                    ctx.rotate(rotateAngle);
+                    ctx.arc(0, 0, Math.min(width, height)/2-lineWidth, startAngle, endAngle, false);
+                    ctx.stroke();
                 }
             }
         }
-        SequentialAnimation {
-            running: canvas.autoChangeColor && canvas.visible
-            loops: Animation.Infinite
-            ColorAnimation {
-                from: "#BB0000"
-                to: "SteelBlue"
-                target: canvas
-                properties: "color"
-                easing.type: Easing.InOutQuad
-                duration: 1600
-            }
-            ColorAnimation {
-                from: "SteelBlue"
-                to: "ForestGreen"
-                target: canvas
-                properties: "color"
-                easing.type: Easing.InOutQuad
-                duration: 1600
-            }
-            ColorAnimation {
-                from: "ForestGreen"
-                to: "#BB0000"
-                target: canvas
-                properties: "color"
-                easing.type: Easing.InOutQuad
-                duration: 1600
-            }
+        Text {
+            width: parent.width
+            height: parent.height / 3
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            font.family: "Microsoft Yahei"
+            font.pixelSize: height / 2
+            color: textColor
+            text: busyText
         }
     }
 }
