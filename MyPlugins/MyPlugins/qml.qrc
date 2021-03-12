@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>QML/MyTestTable.qml</file>
+        <file>QML/Plugins/MyBusyIndicator.qml</file>
+        <file>QML/Plugins/MyNormalButton.qml</file>
+    </qresource>
+</RCC>
