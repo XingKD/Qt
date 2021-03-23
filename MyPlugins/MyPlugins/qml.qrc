@@ -3,6 +3,7 @@
         <file>main.qml</file>
         <file>QML/MyTestTable.qml</file>
         <file>QML/Plugins/MyBusyIndicator.qml</file>
-        <file>QML/Plugins/MyNormalButton.qml</file>
+        <file>QML/Plugins/MySwitch.qml</file>
+        <file>QML/Plugins/MyScrollableText.qml</file>
     </qresource>
 </RCC>

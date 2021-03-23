@@ -1,21 +1,35 @@
+//--------------------------------------------------------------//
+//  File : MyBusyIndicator.qml                                  //
+//  Copyright(c),Shenzhen FYTX Tech Co.,Ltd.                    //
+//  All rights reserved                                         //
+//                                                              //
+//  Change Logs:                                                //
+//  Date        Author        Notes                             //
+//  2021.03.12  XingKD        Create this file                  //
+//--------------------------------------------------------------//
 import QtQuick 2.14
 
+//--------------------------------------------------------------
+// 零件 ：等待指示器
+// 参数 ：lineWidth: 指示器线条宽度
+//       strokeColor: 指示器颜色（禁用自动变色时有效）
+//       isAutoChangeColor:  自动变色选项
+//       busyText: 指示器文本
+//       textColor: 指示器文本颜色
+//--------------------------------------------------------------
 Item {
     id: myBusyIndicator
 
     property int lineWidth: 6
-
     property color strokeColor: "silver"
+    property bool isAutoChangeColor: false
+    property string busyText
+    property color textColor: strokeColor
 
     property real startAngle
     property real endAngle
     property real rotateAngle: 0
 
-    property bool isAutoChangeColor: false
-
-    property string busyText
-
-    property color textColor: strokeColor
 
     onStartAngleChanged: {
         canvas.requestPaint();
@@ -145,3 +159,28 @@ Item {
         }
     }
 }
+
+
+// Example :
+//
+//    Plugins.MyBusyIndicator {
+//        id: my
+//        busyText: qsTr("加载中")
+//        isAutoChangeColor: true
+//        Timer {
+//            property int triggerCount: 0
+//            interval: 1000
+//            running: true
+//            repeat: true
+//            onTriggered: {
+//                switch(triggerCount++%3) {
+//                    case 0: my.busyText = qsTr("加载中") + " ."; break;
+//                    case 1: my.busyText = qsTr("加载中") + " . ."; break;
+//                    case 2: my.busyText = qsTr("加载中") + " . . ."; break;
+//                }
+//            }
+//        }
+//    }
+//
+//
+
